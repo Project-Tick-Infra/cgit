@@ -85,6 +85,7 @@ struct cgit_exec_filter {
 struct cgit_repo {
 	char *url;
 	char *name;
+	char *basename;
 	char *path;
 	char *desc;
 	char *extra_head_content;

@@ -46,8 +46,10 @@ static void repo_config(struct cgit_repo *repo, const char *name, const char *va
 	const char *path;
 	struct string_list_item *item;
 
-	if (!strcmp(name, "name"))
+	if (!strcmp(name, "name")) {
 		repo->name = xstrdup(value);
+	} else if (!strcmp(name, "basename"))
+		repo->basename = xstrdup(value);
 	else if (!strcmp(name, "clone-url"))
 		repo->clone_url = xstrdup(value);
 	else if (!strcmp(name, "desc"))
@@ -809,6 +811,8 @@ static void print_repo(FILE *f, struct cgit_repo *repo)
 	struct string_list_item *item;
 	fprintf(f, "repo.url=%s\n", repo->url);
 	fprintf(f, "repo.name=%s\n", repo->name);
+	if (repo->basename)
+		fprintf(f, "repo.basename=%s\n", repo->basename);
 	fprintf(f, "repo.path=%s\n", repo->path);
 	if (repo->owner)
 		fprintf(f, "repo.owner=%s\n", repo->owner);

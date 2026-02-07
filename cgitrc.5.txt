@@ -587,6 +587,11 @@ repo.max-subtree-commits::
 	See "max-subtree-commits" for details. Default value:
 	<max-subtree-commits>.
 
+repo.basename::
+	The value used for repository basename specific integrations (such as
+	filter environment variable `CGIT_REPO_BASENAME`). Default value:
+	derived from <repo.url>.
+
 repo.name::
 	The value to show as repository name. Default value: <repo.url>.
 
@@ -756,6 +761,7 @@ All filters are handed the following environment variables:
 
 - CGIT_REPO_URL (from repo.url)
 - CGIT_REPO_NAME (from repo.name)
+- CGIT_REPO_BASENAME (from repo.basename)
 - CGIT_REPO_PATH (from repo.path)
 - CGIT_REPO_OWNER (from repo.owner)
 - CGIT_REPO_DEFBRANCH (from repo.defbranch)
