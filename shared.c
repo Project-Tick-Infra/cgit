@@ -424,6 +424,7 @@ void cgit_prepare_repo_env(struct cgit_repo * repo)
 	cgit_env_var env_vars[] = {
 		{ .name = "CGIT_REPO_URL", .value = repo->url },
 		{ .name = "CGIT_REPO_NAME", .value = repo->name },
+		{ .name = "CGIT_REPO_BASENAME", .value = repo->basename },
 		{ .name = "CGIT_REPO_PATH", .value = repo->path },
 		{ .name = "CGIT_REPO_OWNER", .value = repo->owner },
 		{ .name = "CGIT_REPO_DEFBRANCH", .value = repo->defbranch },
