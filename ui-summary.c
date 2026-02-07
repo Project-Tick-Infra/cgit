@@ -145,8 +145,7 @@ static void print_repo_metadata(void)
 	html("<div class='summary-metadata'>");
 	html("<table summary='repository metadata' class='list nowrap'>");
 	html("<tr class='nohover'>");
-	html("<th class='left'>Metadata</th>");
-	html("<th class='left'></th>");
+	html("<th class='left' colspan='2'>Metadata</th>");
 	html("</tr>\n");
 
 	if (license_path) {
@@ -258,8 +257,7 @@ static void print_repo_overview(void)
 
 	html("<div class='summary-overview'>");
 	html("<table summary='repository overview' class='list nowrap'>");
-	html("<tr class='nohover'><th class='left'>Overview</th>");
-	html("<th class='left'></th></tr>\n");
+	html("<tr class='nohover'><th class='left' colspan='2'>Overview</th></tr>\n");
 
 	if (ctx.repo->defbranch) {
 		html("<tr><td class='left'>Default branch</td><td class='left'>");
