@@ -226,6 +226,10 @@ div#cgit table.list td a.ls-dir {
 	color: #00f;
 }
 
+div#cgit table.list tr.ls-subtree td a.ls-dir {
+	color: #006;
+}
+
 div#cgit table.list td a:hover {
 	color: #00f;
 }
@@ -258,6 +262,10 @@ div#cgit div#summary {
 	margin-bottom: 1em;
 }
 
+div#cgit div.summary-metadata {
+	margin-bottom: 1em;
+}
+
 div#cgit table#downloads {
 	float: right;
 	border-collapse: collapse;
@@ -282,6 +290,15 @@ div#cgit div.error {
 
 div#cgit a.ls-blob, div#cgit a.ls-dir, div#cgit .ls-mod {
 	font-family: monospace;
+}
+
+div#cgit span.subtree-badge {
+	font-size: 0.85em;
+	color: #444;
+	background: #eef2ff;
+	border: 1px solid #99a;
+	padding: 0 0.3em;
+	margin-left: 0.4em;
 }
 
 div#cgit td.ls-size {

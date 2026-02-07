@@ -76,6 +76,8 @@ static void repo_config(struct cgit_repo *repo, const char *name, const char *va
 		repo->enable_subject_links = atoi(value);
 	else if (!strcmp(name, "enable-html-serving"))
 		repo->enable_html_serving = atoi(value);
+	else if (!strcmp(name, "enable-subtree"))
+		repo->enable_subtree = atoi(value);
 	else if (!strcmp(name, "branch-sort")) {
 		if (!strcmp(value, "age"))
 			repo->branch_sort = 1;
@@ -88,6 +90,8 @@ static void repo_config(struct cgit_repo *repo, const char *name, const char *va
 			repo->commit_sort = 2;
 	} else if (!strcmp(name, "max-stats"))
 		repo->max_stats = cgit_find_stats_period(value, NULL);
+	else if (!strcmp(name, "max-subtree-commits"))
+		repo->max_subtree_commits = atoi(value);
 	else if (!strcmp(name, "module-link"))
 		repo->module_link= xstrdup(value);
 	else if (skip_prefix(name, "module-link.", &path)) {
@@ -195,6 +199,8 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.enable_subject_links = atoi(value);
 	else if (!strcmp(name, "enable-html-serving"))
 		ctx.cfg.enable_html_serving = atoi(value);
+	else if (!strcmp(name, "enable-subtree"))
+		ctx.cfg.enable_subtree = atoi(value);
 	else if (!strcmp(name, "enable-tree-linenumbers"))
 		ctx.cfg.enable_tree_linenumbers = atoi(value);
 	else if (!strcmp(name, "enable-git-config"))
@@ -247,6 +253,8 @@ static void config_cb(const char *name, const char *value)
 			ctx.cfg.max_repo_count = INT_MAX;
 	} else if (!strcmp(name, "max-commit-count"))
 		ctx.cfg.max_commit_count = atoi(value);
+	else if (!strcmp(name, "max-subtree-commits"))
+		ctx.cfg.max_subtree_commits = atoi(value);
 	else if (!strcmp(name, "project-list"))
 		ctx.cfg.project_list = xstrdup(expand_macros(value));
 	else if (!strcmp(name, "scan-path"))
@@ -389,8 +397,10 @@ static void prepare_context(void)
 	ctx.cfg.enable_index_owner = 1;
 	ctx.cfg.enable_tree_linenumbers = 1;
 	ctx.cfg.enable_git_config = 0;
+	ctx.cfg.enable_subtree = 0;
 	ctx.cfg.max_repo_count = 50;
 	ctx.cfg.max_commit_count = 50;
+	ctx.cfg.max_subtree_commits = 2000;
 	ctx.cfg.max_lock_attempts = 5;
 	ctx.cfg.max_msg_len = 80;
 	ctx.cfg.max_repodesc_len = 80;
@@ -860,6 +870,7 @@ static void print_repo(FILE *f, struct cgit_repo *repo)
 	fprintf(f, "repo.enable-remote-branches=%d\n", repo->enable_remote_branches);
 	fprintf(f, "repo.enable-subject-links=%d\n", repo->enable_subject_links);
 	fprintf(f, "repo.enable-html-serving=%d\n", repo->enable_html_serving);
+	fprintf(f, "repo.enable-subtree=%d\n", repo->enable_subtree);
 	if (repo->branch_sort == 1)
 		fprintf(f, "repo.branch-sort=age\n");
 	if (repo->commit_sort) {
@@ -868,6 +879,8 @@ static void print_repo(FILE *f, struct cgit_repo *repo)
 		else if (repo->commit_sort == 2)
 			fprintf(f, "repo.commit-sort=topo\n");
 	}
+	if (repo->max_subtree_commits != ctx.cfg.max_subtree_commits)
+		fprintf(f, "repo.max-subtree-commits=%d\n", repo->max_subtree_commits);
 	fprintf(f, "repo.hide=%d\n", repo->hide);
 	fprintf(f, "repo.ignore=%d\n", repo->ignore);
 	fprintf(f, "\n");

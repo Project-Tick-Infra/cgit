@@ -67,6 +67,60 @@ done:
 	return walk_tree_ctx.found_path;
 }
 
+int cgit_ref_read_file(const char *path, const char *head, int file_only,
+		       char **buf, unsigned long *size)
+{
+	struct object_id oid;
+	enum object_type type;
+	unsigned long local_size = 0;
+	struct commit *commit;
+	struct pathspec_item path_items = {
+		.match = xstrdup(path),
+		.len = strlen(path)
+	};
+	struct pathspec paths = {
+		.nr = 1,
+		.items = &path_items
+	};
+	struct walk_tree_context walk_tree_ctx = {
+		.match_path = path,
+		.matched_oid = &oid,
+		.found_path = 0,
+		.file_only = file_only
+	};
+
+	if (!buf)
+		goto done;
+	*buf = NULL;
+	if (!size)
+		size = &local_size;
+
+	if (repo_get_oid(the_repository, head, &oid))
+		goto done;
+	type = oid_object_info(the_repository, &oid, size);
+	if (type == OBJ_COMMIT) {
+		commit = lookup_commit_reference(the_repository, &oid);
+		read_tree(the_repository, repo_get_commit_tree(the_repository, commit),
+			  &paths, walk_tree, &walk_tree_ctx);
+		if (!walk_tree_ctx.found_path)
+			goto done;
+		type = oid_object_info(the_repository, &oid, size);
+	}
+	if (type == OBJ_BAD)
+		goto done;
+
+	*buf = repo_read_object_file(the_repository, &oid, &type, size);
+	if (!*buf)
+		goto done;
+	(*buf)[*size] = '\0';
+	free(path_items.match);
+	return 0;
+
+done:
+	free(path_items.match);
+	return -1;
+}
+
 int cgit_print_file(char *path, const char *head, int file_only)
 {
 	struct object_id oid;

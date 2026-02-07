@@ -16,6 +16,170 @@
 #include "ui-shared.h"
 
 static int urls;
+#define MAX_METADATA_BYTES (64 * 1024)
+
+static char *trim_whitespace(const char *start, const char *end)
+{
+	while (start < end && isspace((unsigned char)*start))
+		start++;
+	while (end > start && isspace((unsigned char)end[-1]))
+		end--;
+	if (end <= start)
+		return NULL;
+	return xstrndup(start, end - start);
+}
+
+static char *find_spdx_identifier(const char *buf, size_t size)
+{
+	static const char *keys[] = {
+		"SPDX-License-Identifier:",
+		"SPDX-License-Expression:",
+	};
+	const char *line = buf;
+	const char *end = buf + size;
+
+	while (line && line < end) {
+		const char *eol = strchrnul(line, '\n');
+		size_t len = eol - line;
+		size_t i;
+
+		for (i = 0; i < ARRAY_SIZE(keys); i++) {
+			const char *value;
+
+			if (len < strlen(keys[i]))
+				continue;
+			if (!skip_prefix(line, keys[i], &value))
+				continue;
+			return trim_whitespace(value, eol);
+		}
+
+		if (!*eol)
+			break;
+		line = eol + 1;
+	}
+	return NULL;
+}
+
+static char *detect_spdx_for_path(const char *path)
+{
+	char *buf = NULL;
+	unsigned long size = 0;
+	char *spdx = NULL;
+
+	if (!path || !ctx.qry.head)
+		return NULL;
+	if (cgit_ref_read_file(path, ctx.qry.head, 1, &buf, &size))
+		return NULL;
+	if (size > MAX_METADATA_BYTES)
+		goto out;
+	spdx = find_spdx_identifier(buf, size);
+
+out:
+	free(buf);
+	return spdx;
+}
+
+static char *find_first_repo_path(const char **candidates, size_t nr)
+{
+	size_t i;
+	const char *ref = ctx.qry.head;
+
+	if (!ref)
+		return NULL;
+
+	for (i = 0; i < nr; i++) {
+		if (cgit_ref_path_exists(candidates[i], ref, 1))
+			return xstrdup(candidates[i]);
+	}
+	return NULL;
+}
+
+static void print_repo_file_link(const char *path)
+{
+	if (!path)
+		return;
+	cgit_tree_link(path, NULL, "ls-blob", ctx.qry.head, ctx.qry.head, path);
+}
+
+static void print_repo_metadata(void)
+{
+	static const char *license_candidates[] = {
+		"LICENSE",
+		"LICENSE.md",
+		"LICENSE.txt",
+		"LICENCE",
+		"LICENCE.md",
+		"LICENCE.txt",
+		"COPYING",
+		"COPYING.md",
+		"COPYING.txt",
+	};
+	static const char *codeowners_candidates[] = {
+		"CODEOWNERS",
+		".github/CODEOWNERS",
+		"docs/CODEOWNERS",
+		".gitlab/CODEOWNERS",
+	};
+	static const char *maintainers_candidates[] = {
+		"MAINTAINERS",
+		"MAINTAINERS.md",
+		"MAINTAINERS.txt",
+		"MAINTAINER",
+		"MAINTAINER.md",
+		"MAINTAINER.txt",
+	};
+	char *license_path = find_first_repo_path(license_candidates,
+						  ARRAY_SIZE(license_candidates));
+	char *license_spdx = license_path ? detect_spdx_for_path(license_path) : NULL;
+	char *codeowners_path = find_first_repo_path(codeowners_candidates,
+						     ARRAY_SIZE(codeowners_candidates));
+	char *maintainers_path = find_first_repo_path(maintainers_candidates,
+						      ARRAY_SIZE(maintainers_candidates));
+
+	if (!license_path && !codeowners_path && !maintainers_path)
+		goto cleanup;
+
+	html("<div class='summary-metadata'>");
+	html("<table summary='repository metadata' class='list nowrap'>");
+	html("<tr class='nohover'>");
+	html("<th class='left'>Metadata</th>");
+	html("<th class='left'></th>");
+	html("</tr>\n");
+
+	if (license_path) {
+		html("<tr><td class='left'>License</td><td class='left'>");
+		if (license_spdx) {
+			html_txt(license_spdx);
+			html(" (");
+			print_repo_file_link(license_path);
+			html(")");
+		} else {
+			print_repo_file_link(license_path);
+		}
+		html("</td></tr>\n");
+	}
+
+	if (codeowners_path) {
+		html("<tr><td class='left'>Codeowners</td><td class='left'>");
+		print_repo_file_link(codeowners_path);
+		html("</td></tr>\n");
+	}
+
+	if (maintainers_path) {
+		html("<tr><td class='left'>Maintainers</td><td class='left'>");
+		print_repo_file_link(maintainers_path);
+		html("</td></tr>\n");
+	}
+
+	html("</table>");
+	html("</div>");
+
+cleanup:
+	free(license_spdx);
+	free(license_path);
+	free(codeowners_path);
+	free(maintainers_path);
+}
 
 static void print_url(const char *url)
 {
@@ -50,6 +214,7 @@ void cgit_print_summary(void)
 		columns++;
 
 	cgit_print_layout_start();
+	print_repo_metadata();
 	html("<table summary='repository info' class='list nowrap'>");
 	cgit_print_branches(ctx.cfg.summary_branches);
 	htmlf("<tr class='nohover'><td colspan='%d'>&nbsp;</td></tr>", columns);

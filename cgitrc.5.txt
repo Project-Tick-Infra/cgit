@@ -213,6 +213,12 @@ enable-subject-links::
 	in commit view. Default value: "0". See also:
 	"repo.enable-subject-links".
 
+enable-subtree::
+	Flag which, when set to "1", will make cgit scan commit messages for
+	git-subtree metadata and mark matching directories in tree view.
+	Default value: "0". See also: "repo.enable-subtree",
+	"max-subtree-commits".
+
 enable-tree-linenumbers::
 	Flag which, when set to "1", will make cgit generate linenumber links
 	for plaintext blobs printed in the tree view. Default value: "1".
@@ -268,6 +274,12 @@ max-blob-size::
 max-commit-count::
 	Specifies the number of entries to list per page in "log" view. Default
 	value: "50".
+
+max-subtree-commits::
+	Specifies the maximum number of commits to scan when detecting
+	git-subtree directories. A value of "0" disables the limit (scan the
+	entire history). Default value: "2000". See also: "enable-subtree",
+	"repo.max-subtree-commits".
 
 max-message-length::
 	Specifies the maximum number of commit message characters to display in
@@ -523,6 +535,10 @@ repo.enable-subject-links::
 	A flag which can be used to override the global setting
 	`enable-subject-links'. Default value: none.
 
+repo.enable-subtree::
+	A flag which can be used to override the global setting
+	`enable-subtree'. Default value: none.
+
 repo.extra-head-content::
 	This value will be added verbatim to the head section of each page
 	displayed for this repo. Default value: none.
@@ -565,6 +581,11 @@ repo.max-stats::
 	Override the default maximum statistics period. Valid values are equal
 	to the values specified for the global "max-stats" setting. Default
 	value: none.
+
+repo.max-subtree-commits::
+	Override the global commit scan limit used for git-subtree detection.
+	See "max-subtree-commits" for details. Default value:
+	<max-subtree-commits>.
 
 repo.name::
 	The value to show as repository name. Default value: <repo.url>.

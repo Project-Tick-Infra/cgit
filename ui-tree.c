@@ -17,7 +17,128 @@ struct walk_tree_context {
 	char *curr_rev;
 	char *match_path;
 	int state;
+	struct string_list *subtrees;
 };
+
+static const char *commit_message_body(const char *buf)
+{
+	const char *msg;
+
+	if (!buf)
+		return NULL;
+	msg = strstr(buf, "\n\n");
+	if (!msg)
+		return NULL;
+	msg += 2;
+	while (*msg == '\n')
+		msg++;
+	return msg;
+}
+
+static char *trim_line_value(const char *start, const char *end)
+{
+	while (start < end && isspace((unsigned char)*start))
+		start++;
+	while (end > start && isspace((unsigned char)end[-1]))
+		end--;
+	if (end <= start)
+		return NULL;
+	return xstrndup(start, end - start);
+}
+
+static void add_subtree_dir(struct string_list *subtrees, const char *dir,
+			    const char *split)
+{
+	struct string_list_item *item;
+
+	if (!dir || !*dir)
+		return;
+	if (string_list_lookup(subtrees, dir))
+		return;
+	item = string_list_append(subtrees, dir);
+	if (split && *split)
+		item->util = xstrdup(split);
+}
+
+static void parse_subtree_trailers(const char *buf, struct string_list *subtrees)
+{
+	const char *msg = commit_message_body(buf);
+	const char *line;
+	char *dir = NULL;
+	char *split = NULL;
+
+	if (!msg)
+		return;
+
+	for (line = msg; *line; ) {
+		const char *eol = strchrnul(line, '\n');
+		const char *value;
+
+		if (skip_prefix(line, "git-subtree-dir:", &value)) {
+			free(dir);
+			dir = trim_line_value(value, eol);
+			if (dir) {
+				size_t len = strlen(dir);
+				while (len > 0 && dir[len - 1] == '/') {
+					dir[len - 1] = '\0';
+					len--;
+				}
+				if (dir[0] == '/')
+					memmove(dir, dir + 1, len);
+			}
+		} else if (skip_prefix(line, "git-subtree-split:", &value)) {
+			free(split);
+			split = trim_line_value(value, eol);
+		}
+
+		if (!*eol)
+			break;
+		line = eol + 1;
+	}
+
+	if (dir)
+		add_subtree_dir(subtrees, dir, split);
+
+	free(dir);
+	free(split);
+}
+
+static void collect_subtrees(const char *rev, struct string_list *subtrees)
+{
+	struct rev_info revs;
+	struct commit *commit;
+	struct strvec rev_argv = STRVEC_INIT;
+	int count = 0;
+	int limit;
+
+	if (!ctx.repo->enable_subtree || !rev)
+		return;
+
+	strvec_push(&rev_argv, "subtree_rev_setup");
+	strvec_push(&rev_argv, rev);
+
+	repo_init_revisions(the_repository, &revs, NULL);
+	revs.abbrev = DEFAULT_ABBREV;
+	revs.commit_format = CMIT_FMT_DEFAULT;
+	revs.ignore_missing = 1;
+	setup_revisions(rev_argv.nr, rev_argv.v, &revs, NULL);
+	prepare_revision_walk(&revs);
+
+	limit = ctx.repo->max_subtree_commits;
+	if (limit <= 0)
+		limit = INT_MAX;
+
+	while (count < limit && (commit = get_revision(&revs)) != NULL) {
+		const char *buf = repo_get_commit_buffer(the_repository, commit, NULL);
+		if (buf)
+			parse_subtree_trailers(buf, subtrees);
+		release_commit_memory(the_repository->parsed_objects, commit);
+		commit->parents = NULL;
+		count++;
+	}
+
+	strvec_clear(&rev_argv);
+}
 
 static void print_text_buffer(const char *name, char *buf, unsigned long size)
 {
@@ -208,6 +329,7 @@ static int ls_item(const struct object_id *oid, struct strbuf *base,
 	struct strbuf fullpath = STRBUF_INIT;
 	struct strbuf linkpath = STRBUF_INIT;
 	struct strbuf class = STRBUF_INIT;
+	struct string_list_item *subtree_item = NULL;
 	enum object_type type;
 	unsigned long size = 0;
 	char *buf;
@@ -215,6 +337,10 @@ static int ls_item(const struct object_id *oid, struct strbuf *base,
 	name = xstrdup(pathname);
 	strbuf_addf(&fullpath, "%s%s%s", ctx.qry.path ? ctx.qry.path : "",
 		    ctx.qry.path ? "/" : "", name);
+
+	if (S_ISDIR(mode) && walk_tree_ctx->subtrees)
+		subtree_item = string_list_lookup(walk_tree_ctx->subtrees,
+						  fullpath.buf);
 
 	if (!S_ISGITLINK(mode)) {
 		type = oid_object_info(the_repository, oid, &size);
@@ -226,7 +352,7 @@ static int ls_item(const struct object_id *oid, struct strbuf *base,
 		}
 	}
 
-	html("<tr><td class='ls-mode'>");
+	htmlf("<tr%s><td class='ls-mode'>", subtree_item ? " class='ls-subtree'" : "");
 	cgit_print_filemode(mode);
 	html("</td><td>");
 	if (S_ISGITLINK(mode)) {
@@ -234,6 +360,15 @@ static int ls_item(const struct object_id *oid, struct strbuf *base,
 	} else if (S_ISDIR(mode)) {
 		write_tree_link(oid, name, walk_tree_ctx->curr_rev,
 				&fullpath);
+		if (subtree_item) {
+			html(" <span class='subtree-badge'");
+			if (subtree_item->util) {
+				html(" title='");
+				html_attrf("split %s", (char *)subtree_item->util);
+				html("'");
+			}
+			html(">subtree</span>");
+		}
 	} else {
 		char *ext = strrchr(name, '.');
 		strbuf_addstr(&class, "ls-blob");
@@ -358,6 +493,7 @@ void cgit_print_tree(const char *rev, char *path)
 {
 	struct object_id oid;
 	struct commit *commit;
+	struct string_list subtrees = STRING_LIST_INIT_DUP;
 	struct pathspec_item path_items = {
 		.match = path,
 		.len = path ? strlen(path) : 0
@@ -368,7 +504,8 @@ void cgit_print_tree(const char *rev, char *path)
 	};
 	struct walk_tree_context walk_tree_ctx = {
 		.match_path = path,
-		.state = 0
+		.state = 0,
+		.subtrees = NULL
 	};
 
 	if (!rev)
@@ -387,6 +524,10 @@ void cgit_print_tree(const char *rev, char *path)
 	}
 
 	walk_tree_ctx.curr_rev = xstrdup(rev);
+	if (ctx.repo->enable_subtree) {
+		collect_subtrees(rev, &subtrees);
+		walk_tree_ctx.subtrees = &subtrees;
+	}
 
 	if (path == NULL) {
 		ls_tree(get_commit_tree_oid(commit), NULL, &walk_tree_ctx);
@@ -404,4 +545,5 @@ void cgit_print_tree(const char *rev, char *path)
 
 cleanup:
 	free(walk_tree_ctx.curr_rev);
+	string_list_clear(&subtrees, 1);
 }
