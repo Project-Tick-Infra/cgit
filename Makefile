@@ -1,6 +1,6 @@
 all::
 
-CGIT_VERSION = 0.0.5-1-ProjT-CGIT
+CGIT_VERSION = 0.0.5-1-Project-Tick
 CGIT_SCRIPT_NAME = cgit.cgi
 CGIT_SCRIPT_PATH = /var/www/htdocs/cgit
 CGIT_DATA_PATH = $(CGIT_SCRIPT_PATH)
