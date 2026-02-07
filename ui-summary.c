@@ -143,7 +143,7 @@ static void print_repo_metadata(void)
 		goto cleanup;
 
 	html("<div class='summary-metadata'>");
-	html("<table summary='repository metadata' class='list nowrap'>");
+	html("<table summary='repository metadata' class='list nowrap' style='width: auto'>");
 	html("<tr class='nohover'>");
 	html("<th class='left' colspan='2'>Metadata</th>");
 	html("</tr>\n");
@@ -256,7 +256,7 @@ static void print_repo_overview(void)
 		return;
 
 	html("<div class='summary-overview'>");
-	html("<table summary='repository overview' class='list nowrap'>");
+	html("<table summary='repository overview' class='list nowrap' style='width: auto'>");
 	html("<tr class='nohover'><th class='left' colspan='2'>Overview</th></tr>\n");
 
 	if (ctx.repo->defbranch) {

@@ -280,11 +280,6 @@ div#cgit div.summary-metadata {
 	margin-bottom: 1em;
 }
 
-div#cgit div.summary-overview table.list,
-div#cgit div.summary-metadata table.list {
-	width: auto;
-	display: inline-table;
-}
 
 div#cgit div.tree-toolbar {
 	display: flex;
