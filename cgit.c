@@ -1,6 +1,7 @@
 /* cgit.c: cgi for the git scm
  *
  * Copyright (C) 2006-2014 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2026 Project Tick
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
@@ -52,6 +53,15 @@ static void repo_config(struct cgit_repo *repo, const char *name, const char *va
 		repo->basename = xstrdup(value);
 	else if (!strcmp(name, "clone-url"))
 		repo->clone_url = xstrdup(value);
+	else if (!strcmp(name, "badge") && value) {
+		char *sep = strchr(value, '|');
+		if (sep) {
+			item = string_list_append(&repo->badges, sep + 1);
+			item->util = xstrndup(value, sep - value);
+		} else {
+			string_list_append(&repo->badges, value);
+		}
+	}
 	else if (!strcmp(name, "desc"))
 		repo->desc = xstrdup(value);
 	else if (!strcmp(name, "owner"))
@@ -839,6 +849,12 @@ static void print_repo(FILE *f, struct cgit_repo *repo)
 		fprintf(f, "repo.homepage=%s\n", repo->homepage);
 	if (repo->clone_url)
 		fprintf(f, "repo.clone-url=%s\n", repo->clone_url);
+	for_each_string_list_item(item, &repo->badges) {
+		if (item->util)
+			fprintf(f, "repo.badge=%s|%s\n", (char *)item->util, item->string);
+		else
+			fprintf(f, "repo.badge=%s\n", item->string);
+	}
 	fprintf(f, "repo.enable-blame=%d\n",
 	        repo->enable_blame);
 	fprintf(f, "repo.enable-commit-graph=%d\n",

@@ -1,6 +1,7 @@
 /* shared.c: global vars + some callback functions
  *
  * Copyright (C) 2006-2014 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2026 Project Tick
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
@@ -82,6 +83,7 @@ struct cgit_repo *cgit_add_repo(const char *url)
 	ret->email_filter = ctx.cfg.email_filter;
 	ret->owner_filter = ctx.cfg.owner_filter;
 	ret->clone_url = ctx.cfg.clone_url;
+	string_list_init_dup(&ret->badges);
 	ret->submodules.strdup_strings = 1;
 	ret->hide = ret->ignore = 0;
 	return ret;

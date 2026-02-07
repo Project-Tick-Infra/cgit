@@ -96,6 +96,7 @@ struct cgit_repo {
 	struct string_list readme;
 	char *section;
 	char *clone_url;
+	struct string_list badges;
 	char *logo;
 	char *logo_link;
 	char *snapshot_prefix;

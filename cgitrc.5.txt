@@ -484,6 +484,11 @@ repo.clone-url::
 	A list of space-separated urls which can be used to clone this repo.
 	Default value: none. See also: "MACRO EXPANSION".
 
+repo.badge::
+	Add a badge to the summary overview. The value may be either an image
+	URL, or "LINK_URL|IMG_URL" to make the badge clickable. Multiple
+	entries are allowed. Default value: none.
+
 repo.commit-filter::
 	Override the default commit-filter. Default value: none. See also:
 	"enable-filter-overrides". See also: "FILTER API".

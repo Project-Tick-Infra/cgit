@@ -1,6 +1,7 @@
 /* cgit.js: javacript functions for cgit
  *
  * Copyright (C) 2006-2018 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2026 Project Tick
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
@@ -63,6 +64,41 @@ function aging() {
 document.addEventListener("DOMContentLoaded", function() {
 	/* we can do the aging on DOM content load since no layout dependency */
 	aging();
+
+	var treeFilter = document.getElementById("tree-filter");
+	if (treeFilter) {
+		var table = treeFilter.parentNode.nextElementSibling;
+		var rows = table ? table.querySelectorAll("tr[data-name]") : [];
+		var count = document.getElementById("tree-filter-count");
+
+		function updateTreeFilter() {
+			var q = treeFilter.value.toLowerCase();
+			var shown = 0;
+			var total = rows.length;
+
+			for (var i = 0; i < rows.length; i++) {
+				var name = rows[i].getAttribute("data-name") || "";
+				var path = rows[i].getAttribute("data-path") || "";
+				var hay = (name + " " + path).toLowerCase();
+				if (!q || hay.indexOf(q) !== -1) {
+					rows[i].style.display = "";
+					shown++;
+				} else {
+					rows[i].style.display = "none";
+				}
+			}
+			if (count) {
+				if (!q) {
+					count.textContent = "";
+				} else {
+					count.textContent = shown + " / " + total;
+				}
+			}
+		}
+
+		treeFilter.addEventListener("input", updateTreeFilter, false);
+		updateTreeFilter();
+	}
 }, false);
 
 })();

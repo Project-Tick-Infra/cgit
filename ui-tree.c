@@ -1,6 +1,7 @@
 /* ui-tree.c: functions for tree output
  *
  * Copyright (C) 2006-2017 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2026 Project Tick
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
@@ -352,7 +353,14 @@ static int ls_item(const struct object_id *oid, struct strbuf *base,
 		}
 	}
 
-	htmlf("<tr%s><td class='ls-mode'>", subtree_item ? " class='ls-subtree'" : "");
+	html("<tr");
+	if (subtree_item)
+		html(" class='ls-subtree'");
+	html(" data-name='");
+	html_attr(name);
+	html("' data-path='");
+	html_attr(fullpath.buf);
+	html("'><td class='ls-mode'>");
 	cgit_print_filemode(mode);
 	html("</td><td>");
 	if (S_ISGITLINK(mode)) {
@@ -419,6 +427,12 @@ cleanup:
 static void ls_head(void)
 {
 	cgit_print_layout_start();
+	html("<div class='tree-toolbar'>");
+	html("<input id='tree-filter' class='tree-filter' type='search' ");
+	html("placeholder='Filter files and folders' ");
+	html("autocomplete='off' aria-label='Filter files'/>");
+	html("<span id='tree-filter-count' class='tree-filter-count'></span>");
+	html("</div>");
 	html("<table summary='tree listing' class='list'>\n");
 	html("<tr class='nohover'>");
 	html("<th class='left'>Mode</th>");

@@ -1,10 +1,13 @@
 /* ui-summary.c: functions for generating repo summary page
  *
  * Copyright (C) 2006-2014 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2026 Project Tick
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
  */
+
+#define USE_THE_REPOSITORY_VARIABLE
 
 #include "cgit.h"
 #include "ui-summary.h"
@@ -181,6 +184,109 @@ cleanup:
 	free(maintainers_path);
 }
 
+static unsigned long ref_age(const struct refinfo *ref)
+{
+	if (!ref || !ref->object)
+		return 0;
+	switch (ref->object->type) {
+	case OBJ_TAG:
+		return ref->tag ? ref->tag->tagger_date : 0;
+	case OBJ_COMMIT:
+		return ref->commit ? ref->commit->committer_date : 0;
+	default:
+		return 0;
+	}
+}
+
+static int cmp_ref_age_desc(const void *a, const void *b)
+{
+	const struct refinfo *r1 = *(const struct refinfo **)a;
+	const struct refinfo *r2 = *(const struct refinfo **)b;
+	unsigned long age1 = ref_age(r1);
+	unsigned long age2 = ref_age(r2);
+
+	if (age1 == age2)
+		return 0;
+	return (age1 > age2) ? -1 : 1;
+}
+
+static char *get_latest_tag_name(void)
+{
+	struct reflist list;
+	char *result = NULL;
+
+	memset(&list, 0, sizeof(list));
+	refs_for_each_tag_ref(get_main_ref_store(the_repository),
+			      cgit_refs_cb, &list);
+	if (!list.count)
+		goto cleanup;
+	qsort(list.refs, list.count, sizeof(*list.refs), cmp_ref_age_desc);
+	result = xstrdup(list.refs[0]->refname);
+
+cleanup:
+	cgit_free_reflist_inner(&list);
+	return result;
+}
+
+static void print_repo_badges(void)
+{
+	struct string_list_item *item;
+
+	for_each_string_list_item(item, &ctx.repo->badges) {
+		html("<span class='badge'>");
+		if (item->util) {
+			html("<a href='");
+			html_attr((const char *)item->util);
+			html("'>");
+		}
+		html("<img class='badge' alt='badge' src='");
+		html_attr(item->string);
+		html("'/>");
+		if (item->util)
+			html("</a>");
+		html("</span>");
+	}
+}
+
+static void print_repo_overview(void)
+{
+	char *latest_tag = get_latest_tag_name();
+	int has_badges = ctx.repo->badges.nr > 0;
+
+	if (!ctx.repo->defbranch && !latest_tag && !has_badges)
+		return;
+
+	html("<div class='summary-overview'>");
+	html("<table summary='repository overview' class='list nowrap'>");
+	html("<tr class='nohover'><th class='left'>Overview</th>");
+	html("<th class='left'></th></tr>\n");
+
+	if (ctx.repo->defbranch) {
+		html("<tr><td class='left'>Default branch</td><td class='left'>");
+		cgit_log_link(ctx.repo->defbranch, NULL, NULL,
+			      ctx.repo->defbranch, NULL, NULL,
+			      0, NULL, NULL, 0, 0);
+		html("</td></tr>\n");
+	}
+
+	if (latest_tag) {
+		html("<tr><td class='left'>Latest tag</td><td class='left'>");
+		cgit_tag_link(latest_tag, NULL, NULL, latest_tag);
+		html("</td></tr>\n");
+	}
+
+	if (has_badges) {
+		html("<tr><td class='left'>Badges</td><td class='left'>");
+		print_repo_badges();
+		html("</td></tr>\n");
+	}
+
+	html("</table>");
+	html("</div>");
+
+	free(latest_tag);
+}
+
 static void print_url(const char *url)
 {
 	int columns = 3;
@@ -214,6 +320,7 @@ void cgit_print_summary(void)
 		columns++;
 
 	cgit_print_layout_start();
+	print_repo_overview();
 	print_repo_metadata();
 	html("<table summary='repository info' class='list nowrap'>");
 	cgit_print_branches(ctx.cfg.summary_branches);

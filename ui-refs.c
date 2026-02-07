@@ -1,6 +1,7 @@
 /* ui-refs.c: browse symbolic refs
  *
  * Copyright (C) 2006-2014 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2026 Project Tick
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
