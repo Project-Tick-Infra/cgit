@@ -985,6 +985,17 @@ static const char *hc(const char *page)
 	return strcmp(ctx.qry.page, page) ? NULL : "active";
 }
 
+static void print_root_link(const char *title, const char *url)
+{
+	if (!url || !url[0])
+		return;
+	html("<a href='");
+	html_attr(url);
+	html("'>");
+	html_txt(title && title[0] ? title : "homepage");
+	html("</a>");
+}
+
 static void cgit_print_path_crumbs(char *path)
 {
 	char *old_path = ctx.qry.path;
@@ -1134,6 +1145,7 @@ void cgit_print_pageheader(void)
 		html("<input type='submit' value='search'/>\n");
 		html("</form>\n");
 	} else if (ctx.env.authenticated) {
+		struct string_list_item *item;
 		char *currenturl = cgit_currenturl();
 		site_link(NULL, "index", NULL, hc("repolist"), NULL, NULL, 0, 1);
 		if (ctx.cfg.root_readme)
@@ -1145,14 +1157,11 @@ void cgit_print_pageheader(void)
 		if (ctx.cfg.root_cla)
 			site_link("cla", "Contributor License Agreement", NULL,
 				  hc("cla"), NULL, NULL, 0, 1);
-		if (ctx.cfg.root_homepage) {
-			html("<a href='");
-			html_attr(ctx.cfg.root_homepage);
-			html("'>");
-			html_txt(ctx.cfg.root_homepage_title ?
-				 ctx.cfg.root_homepage_title : "homepage");
-			html("</a>");
-		}
+		if (ctx.cfg.root_links.nr)
+			for_each_string_list_item(item, &ctx.cfg.root_links)
+				print_root_link(item->string, item->util);
+		else if (ctx.cfg.root_homepage)
+			print_root_link(ctx.cfg.root_homepage_title, ctx.cfg.root_homepage);
 		html("</td><td class='form'>");
 		html("<form method='get' action='");
 		html_attr(currenturl);

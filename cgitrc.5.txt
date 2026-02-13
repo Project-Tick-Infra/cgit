@@ -392,11 +392,18 @@ root-cla::
 
 root-homepage::
 	Specifies an external URL to be shown as a link on the repository
-	index page tabs (next to "index", "about", etc). Default value: none.
+	index page tabs (next to "index", "about", etc). This is kept for
+	backward compatibility; for multiple links use "root-link". Default
+	value: none.
 
 root-homepage-title::
-	Text to use for the root-homepage link label. Default value:
-	"homepage".
+	Text to use for the root-homepage link label. This only applies to
+	"root-homepage". Default value: "homepage".
+
+root-link::
+	Add a root-level external link. This setting may be specified
+	multiple times. Value format is either "LABEL|URL" or "URL". When
+	only URL is given, the URL is used as link text.
 
 root-title::
 	Text printed as heading on the repository index page. Default value:
@@ -930,8 +937,9 @@ root-desc=tracking the foobar development
 root-readme=/var/www/htdocs/about.html
 root-coc=/var/www/htdocs/coc.html
 root-cla=/var/www/htdocs/cla.html
-root-homepage=https://github.com/example
-root-homepage-title=GitHub
+root-link=GitHub|https://github.com/example
+root-link=GitLab|https://gitlab.com/example
+root-link=Codeberg|https://codeberg.org/example
 
 
 # Allow download of tar.gz, tar.bz2 and zip-files

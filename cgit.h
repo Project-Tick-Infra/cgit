@@ -215,6 +215,7 @@ struct cgit_config {
 	char *project_list;
 	struct string_list readme;
 	struct string_list css;
+	struct string_list root_links;
 	char *robots;
 	char *root_title;
 	char *root_desc;

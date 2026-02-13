@@ -40,6 +40,26 @@ static void add_mimetype(const char *name, const char *value)
 	item->util = xstrdup(value);
 }
 
+static void add_root_link(const char *value)
+{
+	const char *sep;
+	struct string_list_item *item;
+
+	if (!value || !value[0])
+		return;
+
+	sep = strchr(value, '|');
+	if (sep && sep > value && sep[1]) {
+		item = string_list_append(&ctx.cfg.root_links,
+					  xstrndup(value, sep - value));
+		item->util = xstrdup(sep + 1);
+		return;
+	}
+
+	item = string_list_append(&ctx.cfg.root_links, xstrdup(value));
+	item->util = xstrdup(value);
+}
+
 static void process_cached_repolist(const char *path);
 
 static void repo_config(struct cgit_repo *repo, const char *name, const char *value)
@@ -167,6 +187,8 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.root_homepage = xstrdup(value);
 	else if (!strcmp(name, "root-homepage-title"))
 		ctx.cfg.root_homepage_title = xstrdup(value);
+	else if (!strcmp(name, "root-link"))
+		add_root_link(value);
 	else if (!strcmp(name, "css"))
 		string_list_append(&ctx.cfg.css, xstrdup(value));
 	else if (!strcmp(name, "js"))
