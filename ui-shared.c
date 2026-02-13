@@ -1157,11 +1157,11 @@ void cgit_print_pageheader(void)
 		if (ctx.cfg.root_cla)
 			site_link("cla", "Contributor License Agreement", NULL,
 				  hc("cla"), NULL, NULL, 0, 1);
+		if (ctx.cfg.root_homepage)
+			print_root_link(ctx.cfg.root_homepage_title, ctx.cfg.root_homepage);
 		if (ctx.cfg.root_links.nr)
 			for_each_string_list_item(item, &ctx.cfg.root_links)
 				print_root_link(item->string, item->util);
-		else if (ctx.cfg.root_homepage)
-			print_root_link(ctx.cfg.root_homepage_title, ctx.cfg.root_homepage);
 		html("</td><td class='form'>");
 		html("<form method='get' action='");
 		html_attr(currenturl);

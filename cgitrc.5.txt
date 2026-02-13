@@ -393,8 +393,8 @@ root-cla::
 root-homepage::
 	Specifies an external URL to be shown as a link on the repository
 	index page tabs (next to "index", "about", etc). This is kept for
-	backward compatibility; for multiple links use "root-link". Default
-	value: none.
+	backward compatibility and may be used together with "root-link".
+	Default value: none.
 
 root-homepage-title::
 	Text to use for the root-homepage link label. This only applies to

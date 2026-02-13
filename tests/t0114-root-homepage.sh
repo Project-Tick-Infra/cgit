@@ -5,6 +5,8 @@ test_description='Check root external links'
 
 test_expect_success 'index has configured root links' '
 	cgit_url "" >tmp &&
+	grep "https://projecttick.org" tmp &&
+	grep ">Project Tick<" tmp &&
 	grep "https://github.com/example" tmp &&
 	grep ">GitHub<" tmp &&
 	grep "https://gitlab.com/example" tmp &&
@@ -15,6 +17,8 @@ test_expect_success 'index has configured root links' '
 
 test_expect_success 'root pages keep root links' '
 	cgit_query "p=coc" >tmp &&
+	grep "https://projecttick.org" tmp &&
+	grep ">Project Tick<" tmp &&
 	grep "https://github.com/example" tmp &&
 	grep ">GitHub<" tmp &&
 	grep "https://gitlab.com/example" tmp &&
