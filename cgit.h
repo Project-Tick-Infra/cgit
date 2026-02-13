@@ -219,6 +219,7 @@ struct cgit_config {
 	char *root_title;
 	char *root_desc;
 	char *root_readme;
+	char *root_coc;
 	char *script_name;
 	char *section;
 	char *repository_sort;

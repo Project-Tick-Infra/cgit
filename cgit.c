@@ -159,6 +159,8 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.root_desc = xstrdup(value);
 	else if (!strcmp(name, "root-readme"))
 		ctx.cfg.root_readme = xstrdup(value);
+	else if (!strcmp(name, "root-coc"))
+		ctx.cfg.root_coc = xstrdup(value);
 	else if (!strcmp(name, "css"))
 		string_list_append(&ctx.cfg.css, xstrdup(value));
 	else if (!strcmp(name, "js"))
@@ -1073,7 +1075,7 @@ static int calc_ttl(void)
 	if (!ctx.qry.page)
 		return ctx.cfg.cache_repo_ttl;
 
-	if (!strcmp(ctx.qry.page, "about"))
+	if (!strcmp(ctx.qry.page, "about") || !strcmp(ctx.qry.page, "coc"))
 		return ctx.cfg.cache_about_ttl;
 
 	if (!strcmp(ctx.qry.page, "snapshot"))

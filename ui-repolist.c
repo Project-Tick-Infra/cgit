@@ -367,14 +367,24 @@ void cgit_print_repolist(void)
 	cgit_print_docend();
 }
 
-void cgit_print_site_readme(void)
+static void cgit_print_site_page(const char *path)
 {
 	cgit_print_layout_start();
-	if (!ctx.cfg.root_readme)
+	if (!path)
 		goto done;
-	cgit_open_filter(ctx.cfg.about_filter, ctx.cfg.root_readme);
-	html_include(ctx.cfg.root_readme);
+	cgit_open_filter(ctx.cfg.about_filter, path);
+	html_include(path);
 	cgit_close_filter(ctx.cfg.about_filter);
 done:
 	cgit_print_layout_end();
+}
+
+void cgit_print_site_readme(void)
+{
+	cgit_print_site_page(ctx.cfg.root_readme);
+}
+
+void cgit_print_site_coc(void)
+{
+	cgit_print_site_page(ctx.cfg.root_coc);
 }
