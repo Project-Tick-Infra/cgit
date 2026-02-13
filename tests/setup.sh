@@ -104,6 +104,7 @@ setup_repos()
 	mkrepo "repos/with space" 2 >/dev/null
 	mkrepo repos/filter 5 testplus >/dev/null
 	echo "site code of conduct" >site-coc.txt
+	echo "site contributor license agreement" >site-cla.txt
 	cat >cgitrc <<EOF
 virtual-root=/
 cache-root=$PWD/cache
@@ -118,6 +119,7 @@ summary-tags=5
 clone-url=git://example.org/\$CGIT_REPO_URL.git
 enable-filter-overrides=1
 root-coc=$PWD/site-coc.txt
+root-cla=$PWD/site-cla.txt
 
 repo.url=foo
 repo.path=$PWD/repos/foo/.git

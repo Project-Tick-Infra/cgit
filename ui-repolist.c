@@ -388,3 +388,8 @@ void cgit_print_site_coc(void)
 {
 	cgit_print_site_page(ctx.cfg.root_coc);
 }
+
+void cgit_print_site_cla(void)
+{
+	cgit_print_site_page(ctx.cfg.root_cla);
+}

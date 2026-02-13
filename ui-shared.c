@@ -1142,6 +1142,9 @@ void cgit_print_pageheader(void)
 		if (ctx.cfg.root_coc)
 			site_link("coc", "Code of Conduct", NULL, hc("coc"),
 				  NULL, NULL, 0, 1);
+		if (ctx.cfg.root_cla)
+			site_link("cla", "Contributor License Agreement", NULL,
+				  hc("cla"), NULL, NULL, 0, 1);
 		html("</td><td class='form'>");
 		html("<form method='get' action='");
 		html_attr(currenturl);

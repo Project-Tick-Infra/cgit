@@ -29,10 +29,10 @@ GLOBAL SETTINGS
 about-filter::
 	Specifies a command which will be invoked to format the content of
 	about pages (both top-level and for each repository), as well as the
-	top-level coc page. The command will get the content of the source
-	file on its STDIN, the name of the file as the first argument, and
-	the STDOUT from the command will be included verbatim on the target
-	page. Default value: none. See also: "FILTER API".
+	top-level coc and cla pages. The command will get the content of the
+	source file on its STDIN, the name of the file as the first argument,
+	and the STDOUT from the command will be included verbatim on the
+	target page. Default value: none. See also: "FILTER API".
 
 agefile::
 	Specifies a path, relative to each repository path, which can be used
@@ -56,8 +56,8 @@ branch-sort::
 
 cache-about-ttl::
 	Number which specifies the time-to-live, in minutes, for the cached
-	version of the about and coc pages. See also: "CACHE". Default value:
-	"15".
+	version of the about, coc, and cla pages. See also: "CACHE". Default
+	value: "15".
 
 cache-dynamic-ttl::
 	Number which specifies the time-to-live, in minutes, for the cached
@@ -384,6 +384,11 @@ root-coc::
 	The content of the file specified with this option will be included
 	verbatim below the "Code of Conduct" link on the repository index page.
 	Default value: none.
+
+root-cla::
+	The content of the file specified with this option will be included
+	verbatim below the "Contributor License Agreement" link on the
+	repository index page. Default value: none.
 
 root-title::
 	Text printed as heading on the repository index page. Default value:
@@ -712,9 +717,9 @@ Parameters are provided to filters as follows.
 about filter::
 	This filter is given a single parameter: the filename of the source
 	file to filter. The filter can use the filename to determine (for
-	example) the type of syntax to follow when formatting readme or coc
-	text. The input text is available on standard input and the filtered
-	text is expected on standard output.
+	example) the type of syntax to follow when formatting readme, coc, or
+	cla text. The input text is available on standard input and the
+	filtered text is expected on standard output.
 
 auth filter::
 	The authentication filter receives 12 parameters:
@@ -916,6 +921,7 @@ root-desc=tracking the foobar development
 # Include some more info about example.com on the index page
 root-readme=/var/www/htdocs/about.html
 root-coc=/var/www/htdocs/coc.html
+root-cla=/var/www/htdocs/cla.html
 
 
 # Allow download of tar.gz, tar.bz2 and zip-files

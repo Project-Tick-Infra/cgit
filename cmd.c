@@ -102,6 +102,25 @@ static void coc_fn(void)
 	}
 }
 
+static void cla_fn(void)
+{
+	if (ctx.repo) {
+		struct cgit_repo *old_repo = ctx.repo;
+		char *old_repo_qry = ctx.qry.repo;
+		char *old_url = ctx.qry.url;
+
+		ctx.repo = NULL;
+		ctx.qry.repo = NULL;
+		ctx.qry.url = NULL;
+		cgit_print_site_cla();
+		ctx.qry.url = old_url;
+		ctx.qry.repo = old_repo_qry;
+		ctx.repo = old_repo;
+	} else {
+		cgit_print_site_cla();
+	}
+}
+
 static void diff_fn(void)
 {
 	cgit_print_diff(ctx.qry.oid, ctx.qry.oid2, ctx.qry.path, 1, 0);
@@ -195,6 +214,7 @@ struct cgit_cmd *cgit_get_cmd(void)
 		def_cmd(about, 0, 0, 0),
 		def_cmd(blame, 1, 1, 0),
 		def_cmd(blob, 1, 0, 0),
+		def_cmd(cla, 0, 0, 0),
 		def_cmd(commit, 1, 1, 0),
 		def_cmd(coc, 0, 0, 0),
 		def_cmd(diff, 1, 1, 0),
