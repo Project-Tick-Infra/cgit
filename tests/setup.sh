@@ -120,6 +120,8 @@ clone-url=git://example.org/\$CGIT_REPO_URL.git
 enable-filter-overrides=1
 root-coc=$PWD/site-coc.txt
 root-cla=$PWD/site-cla.txt
+root-homepage=https://github.com/example
+root-homepage-title=GitHub
 
 repo.url=foo
 repo.path=$PWD/repos/foo/.git

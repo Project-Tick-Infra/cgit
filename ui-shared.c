@@ -1145,6 +1145,14 @@ void cgit_print_pageheader(void)
 		if (ctx.cfg.root_cla)
 			site_link("cla", "Contributor License Agreement", NULL,
 				  hc("cla"), NULL, NULL, 0, 1);
+		if (ctx.cfg.root_homepage) {
+			html("<a href='");
+			html_attr(ctx.cfg.root_homepage);
+			html("'>");
+			html_txt(ctx.cfg.root_homepage_title ?
+				 ctx.cfg.root_homepage_title : "homepage");
+			html("</a>");
+		}
 		html("</td><td class='form'>");
 		html("<form method='get' action='");
 		html_attr(currenturl);

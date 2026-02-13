@@ -163,6 +163,10 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.root_coc = xstrdup(value);
 	else if (!strcmp(name, "root-cla"))
 		ctx.cfg.root_cla = xstrdup(value);
+	else if (!strcmp(name, "root-homepage"))
+		ctx.cfg.root_homepage = xstrdup(value);
+	else if (!strcmp(name, "root-homepage-title"))
+		ctx.cfg.root_homepage_title = xstrdup(value);
 	else if (!strcmp(name, "css"))
 		string_list_append(&ctx.cfg.css, xstrdup(value));
 	else if (!strcmp(name, "js"))

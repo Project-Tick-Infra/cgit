@@ -390,6 +390,14 @@ root-cla::
 	verbatim below the "Contributor License Agreement" link on the
 	repository index page. Default value: none.
 
+root-homepage::
+	Specifies an external URL to be shown as a link on the repository
+	index page tabs (next to "index", "about", etc). Default value: none.
+
+root-homepage-title::
+	Text to use for the root-homepage link label. Default value:
+	"homepage".
+
 root-title::
 	Text printed as heading on the repository index page. Default value:
 	"Git Repository Browser".
@@ -922,6 +930,8 @@ root-desc=tracking the foobar development
 root-readme=/var/www/htdocs/about.html
 root-coc=/var/www/htdocs/coc.html
 root-cla=/var/www/htdocs/cla.html
+root-homepage=https://github.com/example
+root-homepage-title=GitHub
 
 
 # Allow download of tar.gz, tar.bz2 and zip-files
