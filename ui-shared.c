@@ -1140,7 +1140,7 @@ void cgit_print_pageheader(void)
 			site_link("about", "about", NULL, hc("about"),
 				  NULL, NULL, 0, 1);
 		if (ctx.cfg.root_coc)
-			site_link("coc", "coc", NULL, hc("coc"),
+			site_link("coc", "Code of Conduct", NULL, hc("coc"),
 				  NULL, NULL, 0, 1);
 		html("</td><td class='form'>");
 		html("<form method='get' action='");

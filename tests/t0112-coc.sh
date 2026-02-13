@@ -5,7 +5,8 @@ test_description='Check top-level CoC page'
 
 test_expect_success 'index has coc tab' '
 	cgit_url "" >tmp &&
-	grep "p=coc" tmp
+	grep "p=coc" tmp &&
+	grep "Code of Conduct" tmp
 '
 
 test_expect_success 'generate top-level coc page' '

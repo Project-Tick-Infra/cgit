@@ -382,8 +382,8 @@ root-readme::
 
 root-coc::
 	The content of the file specified with this option will be included
-	verbatim below the "coc" link on the repository index page. Default
-	value: none.
+	verbatim below the "Code of Conduct" link on the repository index page.
+	Default value: none.
 
 root-title::
 	Text printed as heading on the repository index page. Default value:
